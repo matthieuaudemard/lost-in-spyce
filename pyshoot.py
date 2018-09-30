@@ -71,12 +71,10 @@ class Player(pg.sprite.Sprite):
         if keystate[pg.K_LEFT] and self.rect.left > 10:
             self.speedx = -5
             self.image = pg.transform.scale(player_imgs['left'], (90, 77))
-            self.image.set_colorkey(BLACK)  # Permet de rendre le noir transparent
         # Deplacement vers la droite
         if keystate[pg.K_RIGHT] and self.rect.right < WIDTH - 10:
             self.speedx = 5
             self.image = pg.transform.scale(player_imgs['right'], (90, 77))
-            self.image.set_colorkey(BLACK)  # Permet de rendre le noir transparent
         self.rect.x += self.speedx
         # Deplacement vers le haut
         if keystate[pg.K_UP] and self.rect.top > 10:
@@ -114,7 +112,7 @@ class Meteor(pg.sprite.Sprite):
         if size is None:
             size = random.choice(['sm', 'sm', 'sm', 'md', 'md', 'lg'])
         self.size = size
-        self.image = random.choice(meteor_imgs[size])
+        self.image = random.choice(meteor_imgs[self.size])
         self.image_orig = self.image.copy()
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width * .80 / 2)
@@ -145,17 +143,21 @@ class Meteor(pg.sprite.Sprite):
         if self.rect.top > HEIGHT + 2 * self.radius \
                 or self.rect.left < -2 * self.radius \
                 or self.rect.right > WIDTH + 25:
+            # definition de sa position initiale
             self.rect.x = random.randrange(WIDTH - self.rect.width)
             self.rect.y = random.randrange(-100, -40)
+            # definition de sa vitesse
             self.speedy = random.randrange(1, 8)
             self.speedx = random.randrange(-3, 3)
+            # definition de sa taille et de son image
             self.size = random.choice(['sm', 'sm', 'sm', 'md', 'md', 'lg'])
+            self.image = random.choice(meteor_imgs[self.size])
 
 
 class Laser(pg.sprite.Sprite):
     def __init__(self, x, y):
         pg.sprite.Sprite.__init__(self)
-        self.image = laser_img_list[1]
+        self.image = laser_imgs[1]
         self.image.set_colorkey(BLACK)  # Permet de rendre le noir transparent
         self.rect = self.image.get_rect()
         self.rect = self.image.get_rect()
@@ -211,7 +213,7 @@ class Pow(pg.sprite.Sprite):
 
     def update(self, *args):
         self.rect.y += self.speedy
-        # On détruit le powerup s'il dépasse l'écran
+        # On detruit le powerup s'il depasse l'ecran
         if self.rect.top > HEIGHT:
             self.kill()
 
@@ -220,9 +222,9 @@ class ScoreNumeral(pg.sprite.Sprite):
     def __init__(self, numeral_string, x, y):
         pg.sprite.Sprite.__init__(self)
         if int(numeral_string) in range(9):
-            self.image = numeral_img[int(numeral_string)]
+            self.image = numeral_imgs[int(numeral_string)]
         else:
-            self.image = numeral_img[0]
+            self.image = numeral_imgs[0]
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
@@ -262,7 +264,7 @@ def draw_score(score_to_draw):
     score_len = len(score_sprites) - 1
 
     for score_char in score_string[::-1]:
-        score_sprites[score_len].image = numeral_img[int(score_char)]
+        score_sprites[score_len].image = numeral_imgs[int(score_char)]
         score_len -= 1
 
 
@@ -270,75 +272,50 @@ def draw_score(score_to_draw):
 background_img = pg.image.load(os.path.join(img_folder, 'texture.png')).convert()
 background_rect = background_img.get_rect()
 # Chargement des images du joueur
-player_default = pg.image.load(os.path.join(ship_folder, 'player.png')).convert()
-player_default.set_colorkey(BLACK)
-player_left = pg.image.load(os.path.join(ship_folder, 'playerLeft.png')).convert()
-player_left.set_colorkey(BLACK)
-player_right = pg.image.load(os.path.join(ship_folder, 'playerRight.png')).convert()
-player_right.set_colorkey(BLACK)
-player_damaged = pg.image.load(os.path.join(ship_folder, 'playerDamaged.png')).convert()
-player_damaged.set_colorkey(BLACK)
-player_imgs = {'default': player_default,
-               'left': player_left,
-               'right': player_right,
-               'damaged': player_damaged, }
+player_imgs = {'default': pg.image.load(os.path.join(ship_folder, 'player.png')).convert_alpha(),
+               'left': pg.image.load(os.path.join(ship_folder, 'playerLeft.png')).convert_alpha(),
+               'right': pg.image.load(os.path.join(ship_folder, 'playerRight.png')).convert_alpha(),
+               'damaged': pg.image.load(os.path.join(ship_folder, 'playerDamaged.png')).convert_alpha(), }
 
 # chargement des images des meteores
-meteor_imgs = {'lg': [],
+meteor_imgs = {'lg': [pg.image.load(os.path.join(meteor_folder, 'meteor_lg.png')).convert_alpha()],
                'md': [],
                'sm': []}
 
-img = pg.image.load(os.path.join(meteor_folder, 'meteor_lg.png')).convert()
-img.set_colorkey(BLACK)
-meteor_imgs['lg'].append(img)
 for i in range(1, 3):
     filename = 'meteorBrown_med{}.png'.format(i)
-    img = pg.image.load(os.path.join(meteor_folder, filename)).convert()
-    img.set_colorkey(BLACK)
+    img = pg.image.load(os.path.join(meteor_folder, filename)).convert_alpha()
     meteor_imgs['md'].append(img)
 for i in range(1, 2):
     filename = 'meteorBrown_small{}.png'.format(i)
-    img = pg.image.load(os.path.join(meteor_folder, filename)).convert()
-    img.set_colorkey(BLACK)
+    img = pg.image.load(os.path.join(meteor_folder, filename)).convert_alpha()
     meteor_imgs['sm'].append(img)
 # chargement des images des lasers
-laser_img_list = [pg.image.load(os.path.join(laser_folder, 'laserGreen.png')).convert(),
-                  pg.image.load(os.path.join(laser_folder, 'laserRed.png')).convert(),
-                  pg.image.load(os.path.join(laser_folder, 'laserBlue07.png')).convert(), ]
+laser_imgs = [pg.image.load(os.path.join(laser_folder, 'laserGreen.png')).convert_alpha(),
+              pg.image.load(os.path.join(laser_folder, 'laserRed.png')).convert_alpha(),
+              pg.image.load(os.path.join(laser_folder, 'laserBlue07.png')).convert_alpha(), ]
 # chargemenr des images des nombres
-numeral_img = []
+numeral_imgs = []
 for i in range(10):
-    filename = 'numeral{}.png'.format(i)
-    img = pg.image.load(os.path.join(numeral_folder, filename)).convert()
-    img.set_colorkey(BLACK)
-    numeral_img.append(img)
-img = pg.image.load(os.path.join(numeral_folder, 'numeralX.png')).convert()
-img.set_colorkey(BLACK)
-numeral_img.append(img)
+    numeral_imgs.append(pg.image.load(os.path.join(numeral_folder, 'numeral{}.png'.format(i))).convert_alpha())
+numeral_imgs.append(pg.image.load(os.path.join(numeral_folder, 'numeralX.png')).convert_alpha())
 # Chargement des images des animations
 explosion_anim = {'lg': [], 'sm': []}
 for i in range(9):
-    filename = 'regularExplosion0{}.png'.format(i)
-    img = pg.image.load(os.path.join(explosion_folder, filename)).convert()
-    img.set_colorkey(BLACK)
-    img_lg = pg.transform.scale(img, (75, 75))
-    explosion_anim['lg'].append(img_lg)
-    img_sm = pg.transform.scale(img, (32, 32))
-    explosion_anim['sm'].append(img_sm)
+    img = pg.image.load(os.path.join(explosion_folder, 'regularExplosion0{}.png'.format(i))).convert_alpha()
+    explosion_anim['lg'].append(pg.transform.scale(img, (75, 75)))
+    explosion_anim['sm'].append(pg.transform.scale(img, (32, 32)))
 
-power_imgs = {}
-gun_img = pg.image.load(os.path.join(powerup_folder, 'gun.png')).convert()
-gun_img.set_colorkey(BLACK)
-power_imgs['gun'] = gun_img
+power_imgs = {'gun': pg.image.load(os.path.join(powerup_folder, 'gun.png')).convert_alpha()}
 
 cursor_img = pg.image.load(os.path.join(ship_folder, 'cursor.png')).convert_alpha()
 
 effect_imgs = {'booster': []}
 for i in range(14, 16):
-    booster_img = pg.image.load(os.path.join(effect_folder, 'fire{}.png'.format(i)))
-    booster_img.set_colorkey(BLACK)
+    booster_img = pg.image.load(os.path.join(effect_folder, 'fire{}.png'.format(i))).convert_alpha()
     effect_imgs['booster'].append(booster_img)
 
+img_life = pg.image.load(os.path.join(ship_folder, 'life.png')).convert_alpha()
 
 all_sprites = pg.sprite.Group()
 mobs = pg.sprite.Group()
@@ -357,7 +334,7 @@ while running:
         show_gameover()
         game_over = False
         all_sprites = pg.sprite.Group()
-        # Création du score
+        # Creation du score
         score_sprites = []
         for i in range(9):
             score_sprite = ScoreNumeral(0, 20 * i + 20, 30)
@@ -416,7 +393,6 @@ while running:
         mobs.add(mob)
         all_sprites.add(mob)
         game_over = True
-
 
     # Render
     screen.blit(background_img, background_rect)
