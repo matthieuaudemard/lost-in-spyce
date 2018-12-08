@@ -1,8 +1,6 @@
 from os import path
 
 import pygame as pg
-import random
-
 from settings import *
 
 
@@ -146,7 +144,7 @@ class Laser(pg.sprite.Sprite):
 
 
 class Meteor(pg.sprite.Sprite):
-    def __init__(self, game):
+    def __init__(self, game, x=None, y=None):
         self._layer = MOB_LAYER
         self.groups = game.all_sprites, game.mobs, game.meteors
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -156,8 +154,8 @@ class Meteor(pg.sprite.Sprite):
         self.image_origin = self.image.copy()
         self.rect = self.image.get_rect()
         self.radius = self.rect.width * .80 // 2
-        self.rect.x = random.randrange(WIDTH - self.rect.width)
-        self.rect.y = random.randrange(MIN_Y_SPAWN - self.rect.height, MAX_Y_SPAWN - self.rect.height)
+        self.rect.x = x if x is not None else random.randrange(WIDTH - self.rect.width)
+        self.rect.y = y if y is not None else random.randrange(MIN_Y_SPAWN - self.rect.height, MAX_Y_SPAWN - self.rect.height)
         self.speedx = random.randrange(-METEOR_MAX_SPEED_X, METEOR_MAX_SPEED_X)
         self.speedy = random.randrange(METEOR_MIN_SPEED_Y, METEOR_MAX_SPEED_Y)
         self.rotation = 0
@@ -281,7 +279,7 @@ class ShieldUp(pg.sprite.Sprite):
         self.groups = game.all_sprites, game.powers
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.power = Power(shield_power=75)
+        self.power = Power(shield_power=random.choice([25, 50, 75]))
         if self.power.shield_power == 25:
             self.image = self.game.spritesheet.get_image('shield_bronze.png')
         elif self.power.shield_power == 50:

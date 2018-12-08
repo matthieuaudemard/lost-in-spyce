@@ -47,6 +47,8 @@ class Game:
         # creates new background with 20 stars
         while len(self.background) <= STAR_NUMBER:
             Star(self, y=random.randrange(0, HEIGHT))
+        for y_position in MOB_INIT_POSITION_LIST:
+            Meteor(self, y=y_position)
         self.player = Player(self)
         self.player.shield = Shield(self)
         self.death_explosion = None

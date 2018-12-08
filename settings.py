@@ -1,3 +1,5 @@
+import random
+
 # colors definition
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -101,3 +103,5 @@ SHIELDBAR_Y = 35
 BAR_LENGTH = 190
 BAR_HEIGHT = 15
 SCORE_LENGTH = 10
+
+MOB_INIT_POSITION_LIST = [random.randrange(-300, -10) for x in range(0, 20)]
